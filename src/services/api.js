@@ -1,3 +1,4 @@
+
 import { API_URL } from "../config";
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -69,23 +70,30 @@ export async function listarUsuarios(token) {
 }
 
 // 🚧 TAREFA 3 — EDIÇÃO (PUT)
+
 export async function editarPerfil(token, nome, email) {
-  const resposta = await fetch(`${API_URL}/api/usuarios/editar`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ nome, email }),
-  });
+  try {
+    const resposta = await fetch(`${API_URL}/api/usuarios/editar`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ nome, email }),
+    });
 
-  const dados = await resposta.json();
+    const dados = await resposta.json().catch(() => null);
 
-  if (!resposta.ok) {
-    throw new Error(dados.mensagem || "Não foi possível atualizar o perfil.");
+    if (!resposta.ok) {
+      const mensagemErro = dados?.mensagem || `Erro no servidor (${resposta.status})`;
+      throw new Error(mensagemErro);
+    }
+
+    return dados;
+  } catch (erro) {
+    console.error("Erro em editarPerfil:", erro.message);
+    throw erro;
   }
-
-  return dados;
 }
 
 // 🚧 TAREFA 4 — EXCLUSÃO (DELETE)
